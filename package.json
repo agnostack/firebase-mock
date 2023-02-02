@@ -2,6 +2,7 @@
   "name": "firebase-mock",
   "version": "2.3.1",
   "description": "Firebase mock library for writing unit tests",
+  "main": "./src",
   "scripts": {
     "test-only": "gulp test",
     "test": "gulp lint && gulp test",
@@ -23,9 +24,9 @@
   "bugs": {
     "url": "https://github.com/dmurvihill/firebase-mock/issues"
   },
-  "main": "browser/firebasemock.js",
   "files": [
-    "browser"
+    "src/",
+    "browser/"
   ],
   "homepage": "https://github.com/dmurvihill/firebase-mock",
   "dependencies": {
