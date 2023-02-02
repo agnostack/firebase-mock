@@ -1,4 +1,4 @@
-/** firebase-mock - v2.3.1
+/** firebase-mock - v2.3.2
 https://github.com/dmurvihill/firebase-mock
 * Copyright (c) 2016 Brian Soumakian
 * License: MIT */
@@ -385,6 +385,7 @@ function notDeepStrictEqual(actual, expected, message) {
     fail(actual, expected, message, 'notDeepStrictEqual', notDeepStrictEqual);
   }
 }
+
 
 // 9. The strict equality assertion tests strict equality, as determined by ===.
 // assert.strictEqual(actual, expected, message_opt);
@@ -59308,25 +59309,26 @@ exports.DataSnapshot = require('./snapshot');
 
 },{"./auth":81,"./firebase":83,"./firestore":92,"./firestore-delta-document-snapshot":85,"./messaging":94,"./sdk":97,"./snapshot":99,"./storage":103,"./user":105}]},{},[109])(109)
 });
-;(function (window) {
+;(function (globalThis) {
   'use strict';
-  if (typeof window !== 'undefined' && window.firebasemock) {
-    window.MockFirebase = window.firebasemock.MockFirebase;
-    window.MockFirebaseSdk = window.firebasemock.MockFirebaseSdk;
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+  if (commonjsGlobal.firebasemock) {
+    commonjsGlobal.MockFirebase = commonjsGlobal.firebasemock.MockFirebase;
+    commonjsGlobal.MockFirebaseSdk = commonjsGlobal.firebasemock.MockFirebaseSdk;
 
     var originals = false;
-    window.MockFirebase.override = function () {
+    commonjsGlobal.MockFirebase.override = function () {
       originals = {
-        firebasesdk: window.firebase,
-        firebase: window.Firebase,
+        firebasesdk: commonjsGlobal.firebase,
+        firebase: commonjsGlobal.Firebase,
       };
-      window.firebase = window.firebasemock.MockFirebaseSdk();
-      window.Firebase = window.firebasemock.MockFirebase;
+      commonjsGlobal.firebase = commonjsGlobal.firebasemock.MockFirebaseSdk();
+      commonjsGlobal.Firebase = commonjsGlobal.firebasemock.MockFirebase;
     };
-    window.MockFirebase.restore = function () {
+    commonjsGlobal.MockFirebase.restore = function () {
       if (!originals) return;
-      window.firebase = originals.firebasesdk;
-      window.Firebase = originals.firebase;
+      commonjsGlobal.firebase = originals.firebasesdk;
+      commonjsGlobal.Firebase = originals.firebase;
     };
   }
-})(window);
+})(this);

@@ -1,6 +1,6 @@
 {
   "name": "firebase-mock",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Firebase mock library for writing unit tests",
   "scripts": {
     "hmm": "gulp hmm",
@@ -36,6 +36,7 @@
   ],
   "homepage": "https://github.com/dmurvihill/firebase-mock",
   "dependencies": {
+    "browser-monads": "^1.0.0",
     "firebase-auto-ids": "~1.1.0",
     "lodash.assign": "^4.2.0",
     "lodash.assignin": "^4.2.0",
