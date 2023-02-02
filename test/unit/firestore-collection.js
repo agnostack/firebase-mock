@@ -654,7 +654,7 @@ describe('MockFirestoreCollection', function () {
         db.collection('docChange').doc('123').set({ name: 'A' });
         db.collection('docChange').doc('456').set({ name: 'B' });
         db.collection('docChange').flush();
-      })
+      });
 
       it('should initially provide all collection results as "added"', () => {        
         db.collection('docChange').onSnapshot(function(snap) {
@@ -726,7 +726,7 @@ describe('MockFirestoreCollection', function () {
 
         db.collection('docChange').doc('123').delete();
         db.flush();        
-      })
+      });
     });
   });
 });

@@ -153,10 +153,8 @@ exports.doFieldValueOp = function doFieldValueOp(objValue, op, serverTime) {
   }
   
   if (FieldValue.increment().isEqual(op)) 
-    return objValue == null ? op.arg : objValue + op.arg
-
-}
-
+    return objValue == null ? op.arg : objValue + op.arg;
+};
 
 exports.removeEmptyFirestoreProperties = function removeEmptyFirestoreProperties(obj, current, serverTime) {
   if (!_.isPlainObject(obj)) {

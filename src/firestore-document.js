@@ -126,12 +126,11 @@ MockFirestoreDocument.prototype.create = function (data, callback) {
   });
 };
 
-MockFirestoreDocument.prototype.set = async function (data, opts, callback) {
+MockFirestoreDocument.prototype.set = function (data, opts, callback) {
   const writeTime = new Timestamp(Math.floor(Date.now() / 1000), 0);
   var _opts = _.assign({}, { merge: false }, opts);
   if (_opts.merge) {
-    await this._update(data, { setMerge: true }, callback);
-    return { writeTime };
+    return this._update(data, { setMerge: true }, callback).then(() => ({ writeTime }));
   }
   var err = this._nextErr('set');
   data = _.cloneDeep(data);
@@ -167,7 +166,7 @@ MockFirestoreDocument.prototype._update = function (changes, opts, callback) {
           data = _.merge(_.isObject(base) ? base : {}, changes);
         } else {
           // check if changes contain no nested objects
-          if (_.every(Object.keys(changes), function(key) { return !_.isPlainObject(changes[key])})) {
+          if (_.every(Object.keys(changes), function(key) { return !_.isPlainObject(changes[key]); })) {
             // allow data to be merged, which allows merging of nested data
             data = _.mergeWith(_.isObject(base) ? base : {}, utils.updateToFirestoreObject(changes), function customizer(newValue, srcValue, key, object, source) {
               // arrays should be applied as-is

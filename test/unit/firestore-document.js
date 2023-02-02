@@ -538,8 +538,7 @@ describe('MockFirestoreDocument', function () {
       }).catch(done);
 
       db.flush();
-    })
-
+    });
 
     it('removes nested property when using FieldValue.delete()', function (done) {
       doc.set({

@@ -36,7 +36,7 @@ function MockFirestoreQuerySnapshot (ref, data, priorData) {
       type: 'removed', 
       doc: new DocumentSnapshot(key, self._ref.doc(key), value) 
     });
-  })
+  });
 }
 
 MockFirestoreQuerySnapshot.prototype.forEach = function(callback, context) {
