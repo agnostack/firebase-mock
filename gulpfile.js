@@ -1,6 +1,7 @@
 'use strict';
 
 var gulp            = require('gulp');
+var flatmap         = require('gulp-flatmap');
 var plugins         = require('gulp-load-plugins')();
 var browserify      = require('browserify');
 var source          = require('vinyl-source-stream');
@@ -120,20 +121,31 @@ gulp.task('lint', function () {
     .pipe(plugins.jshint.reporter('fail'));
 });
 
-var pkgs = ['./yarn.lock','./package-lock.json', './package.json', './bower.json'];
-gulp.task('bump', function () {
+var rawpkgs = ['./yarn.lock','./package-lock.json', './package.json', './bower.json'];
+var pkgs;
+gulp.task('pkgs', function () {
+  pkgs = [];
+  return gulp.src(rawpkgs, { allowEmpty: true })
+    .pipe(flatmap(function(stream, file){
+      pkgs.push(`./${file.relative}`);
+      return stream;
+    }));
+});
+
+gulp.task('bump', gulp.series('pkgs', function () {
   return gulp.src(pkgs)
     .pipe(plugins.bump({
       version: version()
     }))
     .pipe(gulp.dest('./'));
-});
+}));
 
 gulp.task('prepare', gulp.series('bundle', 'bump'));
 
-gulp.task('tag', function () {
+gulp.task('tag', gulp.series('pkgs', function () {
   var versionString = 'v' + version();
   var message = 'Release ' + versionString;
+
   return plugins.shell.task([
     'git add -f ./browser/firebasemock.js',
     'git add ' + pkgs.join(' '),
@@ -142,6 +154,6 @@ gulp.task('tag', function () {
     'git push',
     'git push --tags'
   ])();
-});
+}));
 
 gulp.task('release', gulp.series('prepare', 'tag'));
