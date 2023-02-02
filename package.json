@@ -1,11 +1,15 @@
 {
   "name": "firebase-mock",
-  "version": "2.3.1",
+  "version": "2.3.0",
   "description": "Firebase mock library for writing unit tests",
   "scripts": {
     "test-only": "gulp test",
     "test": "gulp lint && gulp test",
-    "build": "gulp lint && gulp test && gulp bundle",
+    "bundle-only": "gulp bundle",
+    "prepare-only": "gulp prepare",
+    "prepare": "gulp lint && gulp test && gulp prepare",
+    "release-only": "gulp release",
+    "release": "gulp lint && gulp test && gulp release",
     "publish-patch": "git checkout master && git pull && gulp release && npm publish",
     "publish-minor": "git checkout master && git pull && gulp release --type minor && npm publish",
     "publish-major": "git checkout master && git pull && gulp release --type major && npm publish"

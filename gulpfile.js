@@ -129,7 +129,9 @@ gulp.task('bump', function () {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('release', gulp.series('bundle', 'bump', function () {
+gulp.task('prepare', gulp.series('bundle', 'bump'));
+
+gulp.task('tag', function () {
   var versionString = 'v' + version();
   var message = 'Release ' + versionString;
   return plugins.shell.task([
@@ -140,4 +142,6 @@ gulp.task('release', gulp.series('bundle', 'bump', function () {
     'git push',
     'git push --tags'
   ])();
-}));
+});
+
+gulp.task('release', gulp.series('prepare', 'tag'));
