@@ -1,22 +1,23 @@
-;(function (window) {
+;(function (globalThis) {
   'use strict';
-  if (typeof window !== 'undefined' && window.firebasemock) {
-    window.MockFirebase = window.firebasemock.MockFirebase;
-    window.MockFirebaseSdk = window.firebasemock.MockFirebaseSdk;
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+  if (commonjsGlobal.firebasemock) {
+    commonjsGlobal.MockFirebase = commonjsGlobal.firebasemock.MockFirebase;
+    commonjsGlobal.MockFirebaseSdk = commonjsGlobal.firebasemock.MockFirebaseSdk;
 
     var originals = false;
-    window.MockFirebase.override = function () {
+    commonjsGlobal.MockFirebase.override = function () {
       originals = {
-        firebasesdk: window.firebase,
-        firebase: window.Firebase,
+        firebasesdk: commonjsGlobal.firebase,
+        firebase: commonjsGlobal.Firebase,
       };
-      window.firebase = window.firebasemock.MockFirebaseSdk();
-      window.Firebase = window.firebasemock.MockFirebase;
+      commonjsGlobal.firebase = commonjsGlobal.firebasemock.MockFirebaseSdk();
+      commonjsGlobal.Firebase = commonjsGlobal.firebasemock.MockFirebase;
     };
-    window.MockFirebase.restore = function () {
+    commonjsGlobal.MockFirebase.restore = function () {
       if (!originals) return;
-      window.firebase = originals.firebasesdk;
-      window.Firebase = originals.firebase;
+      commonjsGlobal.firebase = originals.firebasesdk;
+      commonjsGlobal.Firebase = originals.firebase;
     };
   }
-})(window);
+})(this);
