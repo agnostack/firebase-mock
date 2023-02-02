@@ -1,4 +1,4 @@
-/** firebase-mock - v2.3.1
+/** firebase-mock - v2.6.0
 https://github.com/dmurvihill/firebase-mock
 * Copyright (c) 2016 Brian Soumakian
 * License: MIT */
