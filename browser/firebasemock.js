@@ -386,7 +386,6 @@ function notDeepStrictEqual(actual, expected, message) {
   }
 }
 
-
 // 9. The strict equality assertion tests strict equality, as determined by ===.
 // assert.strictEqual(actual, expected, message_opt);
 
