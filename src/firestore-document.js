@@ -127,10 +127,11 @@ MockFirestoreDocument.prototype.create = function (data, callback) {
 };
 
 MockFirestoreDocument.prototype.set = function (data, opts, callback) {
-  const writeTime = new Timestamp(Math.floor(Date.now() / 1000), 0);
+  var serverTime = utils.getServerTime();
+  var result = new WriteResult(Timestamp.fromMillis(serverTime));
   var _opts = _.assign({}, { merge: false }, opts);
   if (_opts.merge) {
-    return this._update(data, { setMerge: true }, callback).then(() => ({ writeTime }));
+    return this._update(data, { setMerge: true }, callback).then(() => (result));
   }
   var err = this._nextErr('set');
   data = _.cloneDeep(data);
@@ -140,7 +141,7 @@ MockFirestoreDocument.prototype.set = function (data, opts, callback) {
       if (err === null) {
         data = utils.removeEmptyFirestoreProperties(data, utils.getServerTime());
         self._dataChanged(data);
-        resolve({ writeTime });
+        resolve(result);
       } else {
         if (callback) {
           callback(err);

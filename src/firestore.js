@@ -10,6 +10,7 @@ var FieldValue = require('./firestore-field-value');
 var Queue = require('./queue').Queue;
 var Timestamp = require('./timestamp');
 var utils = require('./utils');
+var WriteResult = require('./write-result');
 var validate = require('./validators');
 var DEFAULT_PATH = 'Mock://';
 
@@ -89,7 +90,8 @@ MockFirestore.prototype.runTransaction = function(transFunc) {
 var processBatchQueue = function (queue) {
   return Promise.all(_.map(queue, (queueItem) => {
     return new Promise((resolve) => {
-      const writeTime = new Timestamp(Math.floor(Date.now() / 1000), 0);
+      var serverTime = utils.getServerTime();
+      var result = new WriteResult(Timestamp.fromMillis(serverTime));
       var method = queueItem.method;
       var doc = queueItem.args[0];
       var data = queueItem.args[1];
@@ -98,20 +100,20 @@ var processBatchQueue = function (queue) {
       if (method === 'set') {
         if (opts && opts.merge === true) {
           return doc._update(data, { setMerge: true })
-            .then(resolve({ writeTime }));
+            .then(resolve(result));
         } else {
           return doc.set(data)
-            .then(resolve({ writeTime }));
+            .then(resolve(result));
         }
       } else if (method === 'create') {
         return doc.create(data)
-          .then(resolve({ writeTime }));
+          .then(resolve(result));
       } else if (method === 'update') {
         return doc.update(data)
-          .then(resolve({ writeTime }));
+          .then(resolve(result));
       } else if (method === 'delete') {
         return doc.delete()
-          .then(resolve({ writeTime }));
+          .then(resolve(result));
       }
   
       return resolve();
