@@ -140,11 +140,11 @@ MockFirestore.prototype.batch = function () {
       return batch;
     },
     commit: function() {
-      const commited = processBatchQueue(queue);
+      const committed = processBatchQueue(queue);
       if (self.queue.events.length > 0) {
         self.flush();
       }
-      return Promise.resolve(commited);
+      return Promise.resolve(committed);
     }
   };
   return batch;
