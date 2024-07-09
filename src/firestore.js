@@ -8,7 +8,7 @@ var DocumentReference = require('./firestore-document');
 var FieldPath = require('./firestore-field-path');
 var FieldValue = require('./firestore-field-value');
 var Queue = require('./queue').Queue;
-var Timestamp = require('./timestamp')
+var Timestamp = require('./timestamp');
 var utils = require('./utils');
 var validate = require('./validators');
 var DEFAULT_PATH = 'Mock://';
@@ -86,29 +86,36 @@ MockFirestore.prototype.runTransaction = function(transFunc) {
   });
 };
 
-var processBatchQueue = async function (queue) {
-  return Promise.all(_.map(queue, async (queueItem) => {
-    const writeTime = new Timestamp(Math.floor(Date.now() / 1000), 0);
-    var method = queueItem.method;
-    var doc = queueItem.args[0];
-    var data = queueItem.args[1];
-    var opts = queueItem.args[2];
-
-    if (method === 'set') {
-      if (opts && opts.merge === true) {
-        await doc._update(data, { setMerge: true });
-      } else {
-        await doc.set(data);
+var processBatchQueue = function (queue) {
+  return Promise.all(_.map(queue, (queueItem) => {
+    return new Promise((resolve) => {
+      const writeTime = new Timestamp(Math.floor(Date.now() / 1000), 0);
+      var method = queueItem.method;
+      var doc = queueItem.args[0];
+      var data = queueItem.args[1];
+      var opts = queueItem.args[2];
+  
+      if (method === 'set') {
+        if (opts && opts.merge === true) {
+          return doc._update(data, { setMerge: true })
+            .then(resolve({ writeTime }));
+        } else {
+          return doc.set(data)
+            .then(resolve({ writeTime }));
+        }
+      } else if (method === 'create') {
+        return doc.create(data)
+          .then(resolve({ writeTime }));
+      } else if (method === 'update') {
+        return doc.update(data)
+          .then(resolve({ writeTime }));
+      } else if (method === 'delete') {
+        return doc.delete()
+          .then(resolve({ writeTime }));
       }
-    } else if (method === 'create') {
-      await doc.create(data);
-    } else if (method === 'update') {
-      await doc.update(data);
-    } else if (method === 'delete') {
-      await doc.delete();
-    }
-
-    return { writeTime };
+  
+      return resolve();
+    });
   }));
 };
 
@@ -132,8 +139,8 @@ MockFirestore.prototype.batch = function () {
       queue.push({ method: 'delete', args: [doc] });
       return batch;
     },
-    commit: async function() {
-      const commited = await processBatchQueue(queue);
+    commit: function() {
+      const commited = processBatchQueue(queue);
       if (self.queue.events.length > 0) {
         self.flush();
       }

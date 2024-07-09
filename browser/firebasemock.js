@@ -1,4 +1,4 @@
-/** firebase-mock - v2.3.3
+/** firebase-mock - v2.3.5
 https://github.com/dmurvihill/firebase-mock
 * Copyright (c) 2016 Brian Soumakian
 * License: MIT */
@@ -49242,6 +49242,7 @@ function nextTick(fn, arg1, arg2, arg3) {
   }
 }
 
+
 }).call(this)}).call(this,require('_process'))
 },{"_process":57}],57:[function(require,module,exports){
 // shim for using process in browser
@@ -57364,6 +57365,7 @@ var DocumentReference = require('./firestore-document');
 var FieldPath = require('./firestore-field-path');
 var FieldValue = require('./firestore-field-value');
 var Queue = require('./queue').Queue;
+var Timestamp = require('./timestamp');
 var utils = require('./utils');
 var validate = require('./validators');
 var DEFAULT_PATH = 'Mock://';
@@ -57442,26 +57444,36 @@ MockFirestore.prototype.runTransaction = function(transFunc) {
 };
 
 var processBatchQueue = function (queue) {
-  _.forEach(queue, function (queueItem) {
-    var method = queueItem.method;
-    var doc = queueItem.args[0];
-    var data = queueItem.args[1];
-    var opts = queueItem.args[2];
-
-    if (method === 'set') {
-      if (opts && opts.merge === true) {
-        doc._update(data, { setMerge: true });
-      } else {
-        doc.set(data);
+  return Promise.all(_.map(queue, (queueItem) => {
+    return new Promise((resolve) => {
+      const writeTime = new Timestamp(Math.floor(Date.now() / 1000), 0);
+      var method = queueItem.method;
+      var doc = queueItem.args[0];
+      var data = queueItem.args[1];
+      var opts = queueItem.args[2];
+  
+      if (method === 'set') {
+        if (opts && opts.merge === true) {
+          return doc._update(data, { setMerge: true })
+            .then(resolve({ writeTime }));
+        } else {
+          return doc.set(data)
+            .then(resolve({ writeTime }));
+        }
+      } else if (method === 'create') {
+        return doc.create(data)
+          .then(resolve({ writeTime }));
+      } else if (method === 'update') {
+        return doc.update(data)
+          .then(resolve({ writeTime }));
+      } else if (method === 'delete') {
+        return doc.delete()
+          .then(resolve({ writeTime }));
       }
-    } else if (method === 'create') {
-      doc.create(data);
-    } else if (method === 'update') {
-      doc.update(data);
-    } else if (method === 'delete') {
-      doc.delete();
-    }
-  });
+  
+      return resolve();
+    });
+  }));
 };
 
 MockFirestore.prototype.batch = function () {
@@ -57485,11 +57497,11 @@ MockFirestore.prototype.batch = function () {
       return batch;
     },
     commit: function() {
-      processBatchQueue(queue);
+      const commited = processBatchQueue(queue);
       if (self.queue.events.length > 0) {
         self.flush();
       }
-      return Promise.resolve();
+      return Promise.resolve(commited);
     }
   };
   return batch;
@@ -57580,7 +57592,7 @@ function extractName(path) {
 
 module.exports = MockFirestore;
 
-},{"./firestore-collection":84,"./firestore-document":87,"./firestore-field-path":88,"./firestore-field-value":89,"./lodash":93,"./queue":96,"./utils":106,"./validators":107,"assert":1,"rsvp":74}],93:[function(require,module,exports){
+},{"./firestore-collection":84,"./firestore-document":87,"./firestore-field-path":88,"./firestore-field-value":89,"./lodash":93,"./queue":96,"./timestamp":104,"./utils":106,"./validators":107,"assert":1,"rsvp":74}],93:[function(require,module,exports){
 module.exports = {
   assign: require('lodash.assign'),
   bind: require('lodash.bind'),
