@@ -8,6 +8,7 @@ var DocumentReference = require('./firestore-document');
 var FieldPath = require('./firestore-field-path');
 var FieldValue = require('./firestore-field-value');
 var Queue = require('./queue').Queue;
+var Timestamp = require('./timestamp')
 var utils = require('./utils');
 var validate = require('./validators');
 var DEFAULT_PATH = 'Mock://';
@@ -85,8 +86,9 @@ MockFirestore.prototype.runTransaction = function(transFunc) {
   });
 };
 
-var processBatchQueue = function (queue) {
-  _.forEach(queue, function (queueItem) {
+var processBatchQueue = async function (queue) {
+  return Promise.all(_.map(queue, async (queueItem) => {
+    const writeTime = new Timestamp(Math.floor(Date.now() / 1000), 0);
     var method = queueItem.method;
     var doc = queueItem.args[0];
     var data = queueItem.args[1];
@@ -94,18 +96,20 @@ var processBatchQueue = function (queue) {
 
     if (method === 'set') {
       if (opts && opts.merge === true) {
-        doc._update(data, { setMerge: true });
+        await doc._update(data, { setMerge: true });
       } else {
-        doc.set(data);
+        await doc.set(data);
       }
     } else if (method === 'create') {
-      doc.create(data);
+      await doc.create(data);
     } else if (method === 'update') {
-      doc.update(data);
+      await doc.update(data);
     } else if (method === 'delete') {
-      doc.delete();
+      await doc.delete();
     }
-  });
+
+    return { writeTime };
+  }));
 };
 
 MockFirestore.prototype.batch = function () {
@@ -128,12 +132,12 @@ MockFirestore.prototype.batch = function () {
       queue.push({ method: 'delete', args: [doc] });
       return batch;
     },
-    commit: function() {
-      processBatchQueue(queue);
+    commit: async function() {
+      const commited = await processBatchQueue(queue);
       if (self.queue.events.length > 0) {
         self.flush();
       }
-      return Promise.resolve();
+      return Promise.resolve(commited);
     }
   };
   return batch;
