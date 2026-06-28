@@ -8,7 +8,6 @@
     "test": "gulp lint && gulp test",
     "bundle-only": "gulp bundle",
     "prepare-only": "gulp prepare",
-    "prepare": "gulp lint && gulp test && gulp prepare",
     "release-only": "gulp release",
     "release": "gulp lint && gulp test && gulp release",
     "publish-patch": "git checkout master && git pull && gulp release && npm publish",
